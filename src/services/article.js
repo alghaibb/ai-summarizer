@@ -11,16 +11,16 @@ export const articleApi = createApi({
 
   // Set up the base query configuration using `fetchBaseQuery` utility from Redux Toolkit
   baseQuery: fetchBaseQuery({
-    
+
     // Specify the base URL for all API requests
     baseUrl: 'https://article-extractor-and-summarizer.p.rapidapi.com/',
 
     // Function to prepare and modify the headers before sending the request
     prepareHeaders: (headers) => {
-      
+
       // Set the 'X-RapidAPI-Key' header with the API key for authentication
       headers.set('X-RapidAPI-Key', rapidApiKey);
-      
+
       // Set the 'X-RapidAPI-Host' header with the host information
       headers.set('X-RapidAPI-Host', 'article-extractor-and-summarizer.p.rapidapi.com');
 
@@ -34,8 +34,10 @@ export const articleApi = createApi({
     // Defines a query endpoint named 'getSummary'
     getSummary: builder.query({
 
-      // Specifies the query function that returns the URL or endpoint string
-      query: (params) => `test`
+      // Specifies the query function that constructs the endpoint URL with the provided article URL and desired summary length
+      query: (params) => `/summarize?url=${encodeURIComponent(params.articleUrl)}&length=3`
     })
   })
 });
+
+export const { useLazyGetSummaryQuery } = articleApi;
