@@ -11,9 +11,27 @@ const Demo = () => {
     summary: '',
   });
 
+  const [allArticles, setAllArticles] = useState([]);
+
   // Hook to trigger the 'getSummary' API query lazily (i.e., on-demand) 
   // and extract relevant data and status variables
   const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
+
+  // Effect hook to initialize the articles state from local storage when the component mounts
+  useEffect(() => {
+
+    // Retrieves the 'articles' item from local storage and parses it into a JavaScript object
+    const articlesFromLocalStorage = JSON.parse(
+      localStorage.getItem('articles')
+    );
+
+    // If there are articles found in local storage, updates the state with those articles
+    if (articlesFromLocalStorage) {
+      setAllArticles(articlesFromLocalStorage);
+    }
+
+  }, []); // Empty dependency array ensures this effect runs only once, similar to componentDidMount
+
 
   // Handles the submission event of the article input form
   const handleSubmit = async (e) => {
@@ -31,11 +49,18 @@ const Demo = () => {
       // Creates a new article object with the fetched summary
       const newArticle = { ...article, summary: data.summary }
 
+      // Prepends the new article to the beginning of the existing list of all articles
+      const updatedAllArticles = [newArticle, ...allArticles];
+
       // Updates the local state with the new article data
       setArticle(newArticle);
 
-      // Logs the new article object for debugging purposes
-      console.log(newArticle);
+      // Updates the state with the modified list of all articles
+      setAllArticles(updatedAllArticles);
+
+      // Stores the updated list of articles as a string in local storage under the key 'articles'
+      localStorage.setItem('articles', JSON.stringify
+      (updatedAllArticles));
     }
   }
 
