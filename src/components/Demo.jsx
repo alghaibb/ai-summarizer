@@ -11,7 +11,12 @@ const Demo = () => {
     summary: '',
   });
 
+  // State to manage and store all articles that have been summarized or searched.
   const [allArticles, setAllArticles] = useState([]);
+
+  // State to manage the URL that is currently copied to the clipboard.
+  // It's set to a string, with its initial state being an empty string.
+  const [copied, setCopied] = useState('');
 
   // Hook to trigger the 'getSummary' API query lazily (i.e., on-demand) 
   // and extract relevant data and status variables
@@ -64,6 +69,23 @@ const Demo = () => {
     }
   }
 
+  /**
+ * Handles the action of copying a URL to the clipboard.
+ * 
+ * @param {string} copyUrl - The URL to be copied.
+ */
+  const handleCopy = (copyUrl) => {
+
+    // Set the currently copied URL to the state.
+    setCopied(copyUrl);
+
+    // Use the Web API to write the URL to the user's clipboard.
+    navigator.clipboard.writeText(copyUrl);
+
+    // Reset the copied state back to 'false' after a 3-second delay.
+    setTimeout(() => setCopied(false), 3000);
+  }
+
   return (
     <section className='mt-16 w-full max-w-xl'>
 
@@ -101,13 +123,13 @@ const Demo = () => {
         <div className='flex flex-col gap-1 max-h-60 overflow-y-auto'>
 
           {/* Previously searched text */}
-          <div className='mt-6 flex items-center'>
+          <div className='mt-6 mb-6 flex items-center'>
             <h2 className='font-satoshi font-bold text-gray-600 text-xl mr-2'>
               Previously
             </h2>
 
             <div className='flex items-center'>
-              <div className='blue_gradient text-xl font-medium'>
+              <div className='blue_gradient font-satoshi font-bold text-xl'>
                 Searched:
               </div>
             </div>
@@ -120,19 +142,24 @@ const Demo = () => {
               key={`link-${index}`}
               onClick={() => setArticle(item)}
               className='link_card'>
-              <div className='copy_btn'>
+              
+              {/* Copy button to allow users to copy the article's URL to the clipboard */}
+              <div className='copy_btn'
+                onClick={() => handleCopy(item.url)}>
                 <img
-                  src={copy}
+
+                  // Display a tick icon if the URL is copied, otherwise show the copy icon 
+                  src={copied === item.url ? tick : copy}
                   alt="copy_icon"
                   className='w-[40%] h-[40%] object-contain' />
               </div>
-              
+
               {/* URLs */}
               <p
                 className='flex-1 font-satoshi text-blue-700 font-medium text-sm truncate hover:text-blue-900 transition-all duration-300 ease-in-out hover:underline'>
                 {item.url}
               </p>
-            
+
             </div>
           ))}
         </div>
@@ -145,7 +172,7 @@ const Demo = () => {
           <img src={loader} alt='loader' className='w-20 h-20 object-contain' />
         ) : error ? (
           <p className='font-inter font-bold text-black text-center'>
-            That wasn't supposed to happen
+            Unexpected hiccup. Let's try that again!
             <br />
             <span className='font-satoshi font-normal text-gray-700'>
               {error?.data?.error}
